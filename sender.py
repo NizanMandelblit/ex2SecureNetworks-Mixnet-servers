@@ -3,8 +3,10 @@ import socket, os, datetime, random, sys
 import hashlib
 import base64
 from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
 
 class messegeSender:
     def __init__(self, message, path, round, password, salt, dest_ip, dest_port):
@@ -17,22 +19,19 @@ class messegeSender:
         self.dest_port = dest_port
 
 
-def Enc(salt,password,messege):
+def Enc(salt, password, messege):
     password = str.encode(password)
     salt = str.encode(salt)
-    kdf = PBKDF2HMAC(hashes.SHA256(),32,salt,100000)
+    kdf = PBKDF2HMAC(hashes.SHA256(), 32, salt, 100000)
     key = base64.urlsafe_b64encode(kdf.derive(password))
     f = Fernet(key)
     token = f.encrypt(str.encode(messege))
-    print(token)
-    print(f.decrypt(token))
     return token
-
 
 
 def main():
     print("hi from sender")
-    messegeSenderArray=[]
+    messegeSenderArray = []
     X = "messages" + sys.argv[1] + ".txt"
     messges = open(X, "r")
     for line in messges.readlines():
@@ -44,14 +43,17 @@ def main():
         salt = feature[4]
         dest_ip = feature[5]
         dest_port = feature[6]
-        messegeSenderArray.append(messegeSender(message,path,round,password,salt,dest_ip,dest_port))
+        messegeSenderArray.append(messegeSender(message, path, round, password, salt, dest_ip, dest_port))
         x = 2
     messges.close()
     for messegeToSend in messegeSenderArray:
-        c=Enc(messegeToSend.salt,messegeToSend.password,messegeToSend.message)
-        msg=str.encode(messegeToSend.dest_ip) + str.encode(messegeToSend.dest_port) + c
+        c = Enc(messegeToSend.salt, messegeToSend.password, messegeToSend.message)
+        msg = str.encode(messegeToSend.dest_ip) + str.encode(messegeToSend.dest_port) + c
+        with open("pk" + messegeToSend.path[0] + ".pem", "rb") as key_file:
+            public_key = serialization.load_pem_public_key(key_file.read(), backend=default_backend())
+        encrypted = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                                                         algorithm=hashes.SHA256(), label=None))
         print(msg)
-
 
 
 if __name__ == '__main__':
