@@ -11,14 +11,11 @@ def main():
     print("hi from mix")
     Y = "sk" + sys.argv[1] + ".pem"
     port = sys.argv[2]
-    skfile = open(Y, "r")
-    with open(skfile, "rb") as key_file:
+    with open(Y, "rb") as key_file:
         private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())
-    skfile.close()
 
     s = socket.socket()  # Create a socket object
-    host = socket.gethostname()  # Get local machine name
-    s.bind((host, port))  # Bind to the port
+    s.bind(("127.0.0.1", int(port)))  # Bind to the port
     s.listen()  # Now wait for client connection.
     while True:
         c, addr = s.accept()  # Establish connection with client.

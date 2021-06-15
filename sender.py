@@ -38,7 +38,7 @@ def main():
     ips=open("ips.txt","r")
     ipPorts=[]
     for line in ips.readlines():
-        ipPorts.append(ipPorts)
+        ipPorts.append(line)
     ips.close()
     messges = open(X, "r")
     for line in messges.readlines():
@@ -57,12 +57,17 @@ def main():
 
     for messegeToSend in messegeSenderArray:
         c = Enc(messegeToSend.salt, messegeToSend.password, messegeToSend.message)
-
         msg = socket.inet_aton(messegeToSend.dest_ip) + socket.inet_aton(messegeToSend.dest_port) + c
         with open("pk" + messegeToSend.path[0] + ".pem", "rb") as key_file:
             public_key = serialization.load_pem_public_key(key_file.read(), backend=default_backend())
         encrypted = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                          algorithm=hashes.SHA256(), label=None))
+        s = socket.socket()  # Create a socket object
+        ipTargetMixServer=ipPorts[0].split()[0]
+        portTargetMixServer=ipPorts[0].split()[1]
+        s.connect((ipTargetMixServer, int(portTargetMixServer)))
+        s.sendall(encrypted)
+        s.close()  # Close the socket when done
         print(msg)
         print(encrypted)
 
