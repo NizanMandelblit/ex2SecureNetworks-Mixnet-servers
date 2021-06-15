@@ -3,8 +3,6 @@ import socket, os, datetime, random, sys
 import hashlib
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 
 
@@ -13,11 +11,11 @@ from cryptography.hazmat.primitives import serialization
 def main():
     print("hi from mix")
     # load sk
-    key = "sk" + sys.argv[1] + ".pem"
-    skfile = open(key, "rb")
+    Y = "sk" + sys.argv[1] + ".pem"
+    skfile = open(Y, "rb")
     private_key = serialization.load_pem_private_key(skfile.read(), password=None)
     # get ciphertext
-    ciphertext = b"hh"
+    ciphertext = b"hh!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     # decrypt the ciphertext
     plaintext = private_key.decrypt(
         ciphertext,
