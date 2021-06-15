@@ -1,30 +1,30 @@
-# nizan mandelblit, 313485468, eldad horvitz, 314964438
+# nizan mandelblit, 313485468, fullname 2, id 2
 import socket, os, datetime, random, sys
 import hashlib
-from cryptography.hazmat.primitives import hashes
+
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import serialization
-
-
 
 
 def main():
     print("hi from mix")
-    # load sk
     Y = "sk" + sys.argv[1] + ".pem"
-    skfile = open(Y, "rb")
-    private_key = serialization.load_pem_private_key(skfile.read(), password=None)
-    # get ciphertext
-    ciphertext = b"hh!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    # decrypt the ciphertext
-    plaintext = private_key.decrypt(
-        ciphertext,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-        )
-    )
+    port = sys.argv[2]
+    with open(Y, "rb") as key_file:
+        private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())
+
+    s = socket.socket()  # Create a socket object
+    s.bind(("127.0.0.1", int(port)))  # Bind to the port
+    s.listen()  # Now wait for client connection.
+    while True:
+        c, addr = s.accept()  # Establish connection with client.
+        print('Got connection from', addr)
+        decryptedMsg = private_key.decrypt(c.recv(1024), padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                                                                      algorithm=hashes.SHA256(), label=None))
+        print(decryptedMsg)
+        c.close()  # Close the connection
+
 
 if __name__ == '__main__':
     main()
