@@ -5,6 +5,7 @@ import base64
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
@@ -24,6 +25,7 @@ def Enc(salt, password, messege):
     salt = str.encode(salt)
     kdf = PBKDF2HMAC(hashes.SHA256(), 32, salt, 100000)
     key = base64.urlsafe_b64encode(kdf.derive(password))
+    print("key: ".encode()+ key)
     f = Fernet(key)
     token = f.encrypt(str.encode(messege))
     return token
@@ -46,6 +48,8 @@ def main():
         messegeSenderArray.append(messegeSender(message, path, round, password, salt, dest_ip, dest_port))
         x = 2
     messges.close()
+    messegeSenderArray.sort(key=lambda x: x.round,reverse=False)
+
     for messegeToSend in messegeSenderArray:
         c = Enc(messegeToSend.salt, messegeToSend.password, messegeToSend.message)
         msg = str.encode(messegeToSend.dest_ip) + str.encode(messegeToSend.dest_port) + c
@@ -54,6 +58,7 @@ def main():
         encrypted = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                          algorithm=hashes.SHA256(), label=None))
         print(msg)
+        print(encrypted)
 
 
 if __name__ == '__main__':
