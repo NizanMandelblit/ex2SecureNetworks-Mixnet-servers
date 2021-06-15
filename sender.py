@@ -35,6 +35,11 @@ def main():
     print("hi from sender")
     messegeSenderArray = []
     X = "messages" + sys.argv[1] + ".txt"
+    ips=open("ips.txt","r")
+    ipPorts=[]
+    for line in ips.readlines():
+        ipPorts.append(ipPorts)
+    ips.close()
     messges = open(X, "r")
     for line in messges.readlines():
         feature = line.split(" ")
