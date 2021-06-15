@@ -57,7 +57,8 @@ def main():
 
     for messegeToSend in messegeSenderArray:
         c = Enc(messegeToSend.salt, messegeToSend.password, messegeToSend.message)
-        msg = str.encode(messegeToSend.dest_ip) + str.encode(messegeToSend.dest_port) + c
+
+        msg = socket.inet_aton(messegeToSend.dest_ip) + socket.inet_aton(messegeToSend.dest_port) + c
         with open("pk" + messegeToSend.path[0] + ".pem", "rb") as key_file:
             public_key = serialization.load_pem_public_key(key_file.read(), backend=default_backend())
         encrypted = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
