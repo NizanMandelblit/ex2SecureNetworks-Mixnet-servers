@@ -1,6 +1,6 @@
 # nizan mandelblit, 313485468, fullname 2, id 2
 import socket, os, datetime, random, sys
-
+import hashlib
 
 class messegeSender:
     def __init__(self, message, path, round, password, salt, dest_ip, dest_port):
@@ -31,7 +31,11 @@ def main():
         x = 2
     messges.close()
     for messegeToSend in messegeSenderArray:
-        continue
+
+        s = socket.socket()  # Create a socket object
+        s.connect((messegeToSend.dest_ip, 12345))
+        s.sendall('Here I am!'.encode())
+        s.close()  # Close the socket when done
 
 
 if __name__ == '__main__':
