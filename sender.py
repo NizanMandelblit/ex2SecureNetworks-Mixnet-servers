@@ -31,7 +31,6 @@ def main():
         x = 2
     messges.close()
     for messegeToSend in messegeSenderArray:
-
         s = socket.socket()  # Create a socket object
         s.connect((messegeToSend.dest_ip, 12345))
         s.sendall('Here I am!'.encode())
