@@ -2,16 +2,18 @@
 import socket, os, datetime, random, sys
 import hashlib
 
-
-
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 
 
 def main():
     print("hi from mix")
     Y = "sk" + sys.argv[1] + ".pem"
-    port= sys.argv[2]
-
+    port = sys.argv[2]
     skfile = open(Y, "r")
+    with open(skfile, "rb") as key_file:
+        private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())
     skfile.close()
 
     s = socket.socket()  # Create a socket object
@@ -21,8 +23,11 @@ def main():
     while True:
         c, addr = s.accept()  # Establish connection with client.
         print('Got connection from', addr)
-        print(c.recv(1024))
+        decryptedMsg = private_key.decrypt(c.recv(1024), padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                                                                      algorithm=hashes.SHA256(), label=None))
+        print(decryptedMsg)
         c.close()  # Close the connection
+
 
 if __name__ == '__main__':
     main()
