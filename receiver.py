@@ -11,8 +11,6 @@ from datetime import datetime
 
 
 def main():
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
     password = sys.argv[1]
     salt = sys.argv[2]
     port = sys.argv[3]
@@ -32,6 +30,8 @@ def main():
         message=f.decrypt(str.encode(message.decode()))
 
         c.close()  # Close the connection
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
         print(str(message.decode()) + " " + current_time)
 
 

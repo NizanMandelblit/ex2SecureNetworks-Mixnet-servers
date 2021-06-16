@@ -42,6 +42,7 @@ def Enc(salt, password, messege):
 
 
 def main():
+    timer=[]
     messegeSenderArray = []
     X = "messages" + sys.argv[1] + ".txt"
     ips = open("ips.txt", "r")
@@ -76,9 +77,10 @@ def main():
                 ipTargetMixServer = address[0]
                 portTargetMixServer = address[1]
                 msg = socket.inet_aton(ipTargetMixServer) + struct.pack('>h', int(portTargetMixServer)) + l
-        timer = threading.Timer(int(messegeToSend.round) * 60,
-                                sendToMix, args=[l, ipTargetMixServer, portTargetMixServer])
-    timer.start()
+        timer.append(threading.Timer(int(messegeToSend.round) * 60,
+                                sendToMix, args=[l, ipTargetMixServer, portTargetMixServer]))
+    for t in timer:
+        t.start()
     """
         for path in messegeToSend.path.split(",")[::-1]:
             with open("pk" + path + ".pem", "rb") as key_file:
