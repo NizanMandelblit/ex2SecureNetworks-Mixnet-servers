@@ -85,7 +85,7 @@ def main():
             messegeToSend.l = l
         for messegeToSend in messegeSenderArray:
             timer = threading.Timer(int(messegeToSend.round) * 60,
-                                    sendToMix,args=[messegeToSend.l, ipTargetMixServer, portTargetMixServer])
+                                    sendToMix, args=[messegeToSend.l, ipTargetMixServer, portTargetMixServer])
         timer.start()
 
 
