@@ -54,12 +54,12 @@ def main():
         x = 2
     messges.close()
     messegeSenderArray.sort(key=lambda x: x.round, reverse=False)
-    cntr = 0
+    cntr = 1
     for messegeToSend in messegeSenderArray:
         c = Enc(messegeToSend.salt, messegeToSend.password, messegeToSend.message)
         msg = socket.inet_aton(messegeToSend.dest_ip) + socket.inet_aton(messegeToSend.dest_port) + c
         l = None
-        for path in messegeToSend.path.split(","):
+        for path in messegeToSend.path.split(",")[::-1]:
             with open("pk" + path + ".pem", "rb") as key_file:
                 public_key = serialization.load_pem_public_key(key_file.read(), backend=default_backend())
             if l == None:
@@ -68,9 +68,8 @@ def main():
             else:
                 ipTargetMixServer = ipPorts[cntr].split()[0]
                 portTargetMixServer = ipPorts[cntr].split()[1]
-                if path == "1":
-                    break
-                cntr = cntr + 1
+                if path != messegeToSend.path.split(",")[::-1][-1]:
+                    cntr = cntr + 1
                 msg = socket.inet_aton(ipTargetMixServer) + socket.inet_aton(portTargetMixServer) + l
                 l = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                          algorithm=hashes.SHA256(), label=None))

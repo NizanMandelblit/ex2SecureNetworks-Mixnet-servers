@@ -10,7 +10,6 @@ import base64
 from datetime import datetime
 
 
-
 def main():
     print("hi from reciever")
     now = datetime.now()
@@ -37,7 +36,7 @@ def main():
         print(decryptedMsg)
         c.close()  # Close the connection
 
-    print(str(messege)+" "+current_time)
+    print(str(messege) + " " + current_time)
 
 
 if __name__ == '__main__':
