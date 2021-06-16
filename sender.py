@@ -83,9 +83,11 @@ def main():
                 portTargetMixServer = ipPorts[cntr].split()[1]
                 if path != messegeToSend.path.split(",")[::-1][-1]:
                     cntr = cntr + 1
-                msg = socket.inet_aton(ipTargetMixServer) + struct.pack('>h',int(portTargetMixServer)) + l
-                l = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    msg = socket.inet_aton(ipTargetMixServer) + struct.pack('>h',int(portTargetMixServer)) + l
+                l += public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                          algorithm=hashes.SHA256(), label=None))
+
+
             messegeToSend.l = l
         for messegeToSend in messegeSenderArray:
             timer = threading.Timer(int(messegeToSend.round) * 60,
