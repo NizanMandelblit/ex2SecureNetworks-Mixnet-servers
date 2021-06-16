@@ -72,6 +72,10 @@ def main():
         l = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                  algorithm=hashes.SHA256(), label=None))
         servers = messegeToSend.path.split(",")
+        servers.reverse()
+        for server in servers:
+
+
         for path in messegeToSend.path.split(",")[::-1]:
             with open("pk" + path + ".pem", "rb") as key_file:
                 public_key = serialization.load_pem_public_key(key_file.read(), backend=default_backend())
