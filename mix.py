@@ -22,18 +22,24 @@ def main():
     while True:
         c, addr = s.accept()  # Establish connection with client.
         print('Got connection from', addr)
-        decryptedMsg = private_key.decrypt(c.recv(1024), padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
+        encryptedMsg = ""
+        msg = ""
+        while True:
+            msg = c.recv(8192)
+            encryptedMsg += str(msg)
+            if not msg:
+                break
+        decryptedMsg = private_key.decrypt(encryptedMsg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                                       algorithm=hashes.SHA256(), label=None))
         ipSend = socket.inet_ntoa(decryptedMsg[0:4])
-        portSend = struct.unpack('>h',decryptedMsg[4:6])[0]
+        portSend = struct.unpack('>h', decryptedMsg[4:6])[0]
         send = socket.socket()  # Create a socket object
         send.connect((ipSend, portSend))
         send.sendall(decryptedMsg[6:])
         s.close()  # Close the socket when done
 
-
         print(decryptedMsg)
-        c.close()  # Close the connection
+        # c.close()  # Close the connection
 
 
 if __name__ == '__main__':
