@@ -22,6 +22,9 @@ def main():
         print('Got connection from', addr)
         decryptedMsg = private_key.decrypt(c.recv(1024), padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                                       algorithm=hashes.SHA256(), label=None))
+        socket.inet_ntoa(decryptedMsg[0:4])
+
+
         print(decryptedMsg)
         c.close()  # Close the connection
 
