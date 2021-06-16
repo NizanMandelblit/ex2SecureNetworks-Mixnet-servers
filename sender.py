@@ -18,6 +18,7 @@ class messegeSender:
         self.salt = salt
         self.dest_ip = dest_ip
         self.dest_port = dest_port
+        self.l = None
 
 
 def Enc(salt, password, messege):
@@ -73,13 +74,15 @@ def main():
                 msg = socket.inet_aton(ipTargetMixServer) + socket.inet_aton(portTargetMixServer) + l
                 l = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                          algorithm=hashes.SHA256(), label=None))
+            messegeToSend.l = l
 
         s = socket.socket()  # Create a socket object
         s.connect((ipTargetMixServer, int(portTargetMixServer)))
-        s.sendall(l)
+        for messegeToSend in messegeSenderArray:
+            s.sendall(messegeToSend.l)
+            print(msg)
+            print(l)
         s.close()  # Close the socket when done
-        print(msg)
-        print(l)
 
 
 if __name__ == '__main__':
