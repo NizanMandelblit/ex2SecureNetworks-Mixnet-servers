@@ -1,10 +1,8 @@
 # nizan mandelblit, 313485468, eldad horvitz, 314964438
-import socket, os, datetime, random, sys
-import hashlib
+import socket, datetime, sys
+
 from cryptography.fernet import Fernet
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import base64
 from datetime import datetime

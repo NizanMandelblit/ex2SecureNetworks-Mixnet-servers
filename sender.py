@@ -1,6 +1,5 @@
 # nizan mandelblit, 313485468, eldad horvitz, 314964438
-import socket, os, datetime, random, sys
-import hashlib
+import socket, sys
 import base64
 import struct
 
@@ -23,14 +22,14 @@ class messegeSender:
         self.dest_port = dest_port
         self.l = None
 
-
+# sendToMix server
 def sendToMix(l, ipTargetMixServer, portTargetMixServer):
     s = socket.socket()  # Create a socket object
     s.connect((ipTargetMixServer, int(portTargetMixServer)))
     s.sendall(l)
     s.close()  # Close the socket when done
 
-
+# symmetric encryption function
 def Enc(salt, password, messege):
     password = str.encode(password)
     salt = str.encode(salt)
@@ -47,10 +46,12 @@ def main():
     X = "messages" + sys.argv[1] + ".txt"
     ips = open("ips.txt", "r")
     ipPorts = []
+    # get lines from ips.txt
     for line in ips.readlines():
         ipPorts.append(line)
     ips.close()
     messges = open(X, "r")
+    # get lines from messages.txt and create messegeSender
     for line in messges.readlines():
         feature = line.split(" ")
         message = feature[0]
@@ -64,46 +65,28 @@ def main():
         x = 2
     messges.close()
     for messegeToSend in messegeSenderArray:
+        # encrypt message
         c = Enc(messegeToSend.salt, messegeToSend.password, messegeToSend.message)
         msg = socket.inet_aton(messegeToSend.dest_ip) + struct.pack('>h', int(messegeToSend.dest_port)) + c
         servers = messegeToSend.path.split(",")
         servers.reverse()
         for i in range(len(servers)):
+            # create the key
             with open("pk" + servers[i] + ".pem", "rb") as key_file:
                 public_key = serialization.load_pem_public_key(key_file.read(), backend=default_backend())
+                # encryption
                 l = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                          algorithm=hashes.SHA256(), label=None))
                 address = ipPorts[int(servers[i])-1].split()
                 ipTargetMixServer = address[0]
                 portTargetMixServer = address[1]
+                # concat the ip and address
                 msg = socket.inet_aton(ipTargetMixServer) + struct.pack('>h', int(portTargetMixServer)) + l
         timer.append(threading.Timer(int(messegeToSend.round) * 60,
-                                sendToMix, args=[l, ipTargetMixServer, portTargetMixServer]))
+                               sendToMix, args=[l, ipTargetMixServer, portTargetMixServer]))
+    # start timers
     for t in timer:
         t.start()
-    """
-        for path in messegeToSend.path.split(",")[::-1]:
-            with open("pk" + path + ".pem", "rb") as key_file:
-                public_key = serialization.load_pem_public_key(key_file.read(), backend=default_backend())
-            if l == None:
-                l = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                                                         algorithm=hashes.SHA256(), label=None))
-            else:
-                ipTargetMixServer = ipPorts[cntr].split()[0]
-                portTargetMixServer = ipPorts[cntr].split()[1]
-                if path != messegeToSend.path.split(",")[::-1][-1]:
-                    cntr = cntr + 1
-                    msg = socket.inet_aton(ipTargetMixServer) + struct.pack('>h',int(portTargetMixServer)) + l
-                l += public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                                                         algorithm=hashes.SHA256(), label=None))
-
-
-            messegeToSend.l = l
-        for messegeToSend in messegeSenderArray:
-            timer = threading.Timer(int(messegeToSend.round) * 60,
-                                    sendToMix, args=[messegeToSend.l, ipTargetMixServer, portTargetMixServer])
-        timer.start()
-    """
 
 
 if __name__ == '__main__':
