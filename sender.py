@@ -7,6 +7,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+import threading
 
 
 class messegeSender:
@@ -19,6 +20,13 @@ class messegeSender:
         self.dest_ip = dest_ip
         self.dest_port = dest_port
         self.l = None
+
+
+def sendToMix(l, ipTargetMixServer, portTargetMixServer):
+    s = socket.socket()  # Create a socket object
+    s.connect((ipTargetMixServer, int(portTargetMixServer)))
+    s.sendall(l)
+    s.close()  # Close the socket when done
 
 
 def Enc(salt, password, messege):
@@ -75,14 +83,10 @@ def main():
                 l = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                          algorithm=hashes.SHA256(), label=None))
             messegeToSend.l = l
-
-        s = socket.socket()  # Create a socket object
-        s.connect((ipTargetMixServer, int(portTargetMixServer)))
         for messegeToSend in messegeSenderArray:
-            s.sendall(messegeToSend.l)
-            print(msg)
-            print(l)
-        s.close()  # Close the socket when done
+            timer = threading.Timer(int(messegeToSend.round) * 60,
+                                    sendToMix,args=[messegeToSend.l, ipTargetMixServer, portTargetMixServer])
+        timer.start()
 
 
 if __name__ == '__main__':
