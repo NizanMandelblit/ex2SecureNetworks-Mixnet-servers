@@ -7,7 +7,7 @@ def main():
     print("hi from reciever")
     passowrd = sys.argv[1]
     salt = sys.argv[2]
-    port= sys.argv[3]
+    port = sys.argv[3]
 
 
 if __name__ == '__main__':
