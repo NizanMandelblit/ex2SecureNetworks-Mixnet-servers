@@ -1,6 +1,8 @@
 # nizan mandelblit, 313485468, eldad horvitz, 314964438
+import base64
 import socket, os, datetime, random, sys
 import hashlib
+import struct
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization, hashes
@@ -23,9 +25,9 @@ def main():
         decryptedMsg = private_key.decrypt(c.recv(1024), padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                                       algorithm=hashes.SHA256(), label=None))
         ipSend = socket.inet_ntoa(decryptedMsg[0:4])
-        portSend = socket.inet_ntoa(decryptedMsg[4:6])
+        portSend = struct.unpack('>h',decryptedMsg[4:6])[0]
         send = socket.socket()  # Create a socket object
-        send.connect((ipSend, int(portSend)))
+        send.connect((ipSend, portSend))
         send.sendall(decryptedMsg[6:])
         s.close()  # Close the socket when done
 

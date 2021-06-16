@@ -2,6 +2,8 @@
 import socket, os, datetime, random, sys
 import hashlib
 import base64
+import struct
+
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
@@ -79,7 +81,7 @@ def main():
                 portTargetMixServer = ipPorts[cntr].split()[1]
                 if path != messegeToSend.path.split(",")[::-1][-1]:
                     cntr = cntr + 1
-                msg = socket.inet_aton(ipTargetMixServer) + socket.inet_aton(portTargetMixServer) + l
+                msg = socket.inet_aton(ipTargetMixServer) + struct.pack('>h',int(portTargetMixServer)) + l
                 l = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                          algorithm=hashes.SHA256(), label=None))
             messegeToSend.l = l
