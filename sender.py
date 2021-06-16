@@ -1,4 +1,4 @@
-# nizan mandelblit, 313485468, fullname 2, id 2
+# nizan mandelblit, 313485468, eldad horvitz, 314964438
 import socket, os, datetime, random, sys
 import hashlib
 import base64
