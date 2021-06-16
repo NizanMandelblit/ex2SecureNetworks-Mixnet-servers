@@ -36,14 +36,12 @@ def Enc(salt, password, messege):
     salt = str.encode(salt)
     kdf = PBKDF2HMAC(hashes.SHA256(), 32, salt, 100000)
     key = base64.urlsafe_b64encode(kdf.derive(password))
-    print("key: ".encode() + key)
     f = Fernet(key)
     token = f.encrypt(str.encode(messege))
     return token
 
 
 def main():
-    print("hi from sender")
     messegeSenderArray = []
     X = "messages" + sys.argv[1] + ".txt"
     ips = open("ips.txt", "r")
@@ -64,18 +62,24 @@ def main():
         messegeSenderArray.append(messegeSender(message, path, round, password, salt, dest_ip, dest_port))
         x = 2
     messges.close()
-    messegeSenderArray.sort(key=lambda x: x.round, reverse=False)
-    cntr = 1
     for messegeToSend in messegeSenderArray:
         c = Enc(messegeToSend.salt, messegeToSend.password, messegeToSend.message)
-        msg = socket.inet_aton(messegeToSend.dest_ip) + socket.inet_aton(messegeToSend.dest_port) + c
-        l = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                                                 algorithm=hashes.SHA256(), label=None))
+        msg = socket.inet_aton(messegeToSend.dest_ip) + struct.pack('>h', int(messegeToSend.dest_port)) + c
         servers = messegeToSend.path.split(",")
         servers.reverse()
-        for server in servers:
-
-
+        for i in range(len(servers)):
+            with open("pk" + servers[i] + ".pem", "rb") as key_file:
+                public_key = serialization.load_pem_public_key(key_file.read(), backend=default_backend())
+                l = public_key.encrypt(msg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                                                         algorithm=hashes.SHA256(), label=None))
+                address = ipPorts[int(servers[i])-1].split()
+                ipTargetMixServer = address[0]
+                portTargetMixServer = address[1]
+                msg = socket.inet_aton(ipTargetMixServer) + struct.pack('>h', int(portTargetMixServer)) + l
+        timer = threading.Timer(int(messegeToSend.round) * 60,
+                                sendToMix, args=[l, ipTargetMixServer, portTargetMixServer])
+    timer.start()
+    """
         for path in messegeToSend.path.split(",")[::-1]:
             with open("pk" + path + ".pem", "rb") as key_file:
                 public_key = serialization.load_pem_public_key(key_file.read(), backend=default_backend())
@@ -97,6 +101,7 @@ def main():
             timer = threading.Timer(int(messegeToSend.round) * 60,
                                     sendToMix, args=[messegeToSend.l, ipTargetMixServer, portTargetMixServer])
         timer.start()
+    """
 
 
 if __name__ == '__main__':

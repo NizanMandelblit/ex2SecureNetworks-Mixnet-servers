@@ -11,7 +11,6 @@ from datetime import datetime
 
 
 def main():
-    print("hi from reciever")
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     password = sys.argv[1]
@@ -21,21 +20,19 @@ def main():
     salt = str.encode(salt)
     kdf = PBKDF2HMAC(hashes.SHA256(), 32, salt, 100000)
     key = base64.urlsafe_b64encode(kdf.derive(password))
-    print("key: ".encode() + key)
     f = Fernet(key)
-    messege = f.decrypt(str.encode(messege))
+
     # socket
     s = socket.socket()  # Create a socket object
     s.bind(("127.0.0.1", int(port)))  # Bind to the port
     s.listen()  # Now wait for client connection.
     while True:
         c, addr = s.accept()  # Establish connection with client.
-        decryptedMsg = private_key.decrypt(c.recv(1024), padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                                                                      algorithm=hashes.SHA256(), label=None))
-        print(decryptedMsg)
-        c.close()  # Close the connection
+        message = c.recv(1024)
+        message=f.decrypt(str.encode(message.decode()))
 
-    print(str(messege) + " " + current_time)
+        c.close()  # Close the connection
+        print(str(message.decode()) + " " + current_time)
 
 
 if __name__ == '__main__':

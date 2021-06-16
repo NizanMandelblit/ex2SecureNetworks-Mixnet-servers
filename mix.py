@@ -10,7 +10,6 @@ from cryptography.hazmat.primitives.asymmetric import padding
 
 
 def main():
-    print("hi from mix")
     Y = "sk" + sys.argv[1] + ".pem"
     port = sys.argv[2]
     with open(Y, "rb") as key_file:
@@ -21,24 +20,25 @@ def main():
     s.listen()  # Now wait for client connection.
     while True:
         c, addr = s.accept()  # Establish connection with client.
-        print('Got connection from', addr)
         encryptedMsg = ""
         msg = ""
+        """
         while True:
             msg = c.recv(8192)
             encryptedMsg += str(msg)
             if not msg:
                 break
-        decryptedMsg = private_key.decrypt(encryptedMsg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
+        """
+        decryptedMsg = c.recv(8192)
+        decryptedMsg = private_key.decrypt(decryptedMsg, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
                                                                       algorithm=hashes.SHA256(), label=None))
         ipSend = socket.inet_ntoa(decryptedMsg[0:4])
         portSend = struct.unpack('>h', decryptedMsg[4:6])[0]
         send = socket.socket()  # Create a socket object
         send.connect((ipSend, portSend))
         send.sendall(decryptedMsg[6:])
-        s.close()  # Close the socket when done
+        #s.close()  # Close the socket when done
 
-        print(decryptedMsg)
         # c.close()  # Close the connection
 
 
