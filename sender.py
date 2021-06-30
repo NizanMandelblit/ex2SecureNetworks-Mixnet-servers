@@ -1,7 +1,6 @@
 # nizan mandelblit, 313485468, eldad horvitz, 314964438
 import socket, sys
 import base64
-import struct
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
@@ -67,7 +66,8 @@ def main():
     for messegeToSend in messegeSenderArray:
         # encrypt message
         c = Enc(messegeToSend.salt, messegeToSend.password, messegeToSend.message)
-        msg = socket.inet_aton(messegeToSend.dest_ip) + struct.pack('>h', int(messegeToSend.dest_port)) + c
+
+        msg = socket.inet_aton(messegeToSend.dest_ip) + int(messegeToSend.dest_port).to_bytes(2, 'big') + c
         servers = messegeToSend.path.split(",")
         servers.reverse()
         for i in range(len(servers)):
@@ -81,7 +81,7 @@ def main():
                 ipTargetMixServer = address[0]
                 portTargetMixServer = address[1]
                 # concat the ip and address
-                msg = socket.inet_aton(ipTargetMixServer) + struct.pack('>h', int(portTargetMixServer)) + l
+                msg = socket.inet_aton(ipTargetMixServer) + int(portTargetMixServer).to_bytes(2, 'big') + l
         timer.append(threading.Timer(int(messegeToSend.round) * 60,
                                sendToMix, args=[l, ipTargetMixServer, portTargetMixServer]))
     # start timers

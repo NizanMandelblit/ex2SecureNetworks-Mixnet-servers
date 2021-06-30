@@ -2,7 +2,6 @@
 
 import socket
 import sys
-import struct
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization, hashes
@@ -27,7 +26,8 @@ def main():
                                                                       algorithm=hashes.SHA256(), label=None))
         # gets the ip and port of the next router ans send
         ipSend = socket.inet_ntoa(decryptedMsg[0:4])
-        portSend = struct.unpack('>h', decryptedMsg[4:6])[0]
+
+        portSend = int.from_bytes(decryptedMsg[4:6], 'big')
         send = socket.socket()  # Create a socket object
         send.connect((ipSend, portSend))
         send.sendall(decryptedMsg[6:])
